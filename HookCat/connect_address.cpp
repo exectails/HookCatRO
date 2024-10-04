@@ -70,7 +70,7 @@ namespace HookCat
 
 					if (endIndex != std::string::npos)
 					{
-						std::string newPort = cmdLine.substr(index + 3, endIndex - index - 3);
+						std::string newPort = cmdLine.substr(index + 5, endIndex - index - 5);
 						port = atoi(newPort.c_str());
 						Kitten.Log.Info("  overwriting conf port with argument %d.", port);
 					}
