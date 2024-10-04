@@ -136,6 +136,7 @@
     <ClCompile Include="..\Libs\minhook\src\hde\hde64.c" />
     <ClCompile Include="..\Libs\minhook\src\hook.c" />
     <ClCompile Include="..\Libs\minhook\src\trampoline.c" />
+    <ClCompile Include="clean_text.cpp" />
     <ClCompile Include="connect_address.cpp" />
     <ClCompile Include="ddraw_error.cpp" />
     <ClCompile Include="dinput8.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="..\Libs\minhook\src\hde\table64.h" />
     <ClInclude Include="..\Libs\minhook\src\trampoline.h" />
     <ClInclude Include="chatspam.h" />
+    <ClInclude Include="clean_text.h" />
     <ClInclude Include="connect_address.h" />
     <ClInclude Include="date.h" />
     <ClInclude Include="ddraw_error.h" />
