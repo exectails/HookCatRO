@@ -5,7 +5,7 @@
 // Our DLL must then provide all functions that would normally be called
 // in the original though, like DirectInput8Create.
 
-typedef HRESULT(WINAPI *DirectInput8CreateFunc)(HINSTANCE inst_handle, DWORD version, const IID& r_iid, LPVOID* out_wrapper, LPUNKNOWN p_unk);
+typedef HRESULT(WINAPI* DirectInput8CreateFunc)(HINSTANCE inst_handle, DWORD version, const IID& r_iid, LPVOID* out_wrapper, LPUNKNOWN p_unk);
 
 DirectInput8CreateFunc originalDirectInput8Create = nullptr;
 
