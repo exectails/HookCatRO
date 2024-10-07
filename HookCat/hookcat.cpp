@@ -22,6 +22,8 @@ namespace HookCat
 		if (mods.size() == 0)
 			AddMods();
 
+		Kitten.Log.Info("Starting HookCat...");
+
 		Kitten.Log.Info("Loading mods...");
 		for (auto& mod : mods)
 			mod->OnLoad();
