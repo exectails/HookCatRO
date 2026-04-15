@@ -1,8 +1,9 @@
-// Name: MultiClient
+// Name: BetterMouseCapture
 // Author: exec
-// 
-// Disables a jump in RagExe.exe where it checks whether the game window
-// already exists.
+//
+// Manually captures and releases the mouse cursor when the game window is
+// activated and deactivated, instead of relying on DirectInput's
+// cooperative levels, which can be wonky.
 
 #include "better_mouse_capture.h"
 #include "hookcat.h"
