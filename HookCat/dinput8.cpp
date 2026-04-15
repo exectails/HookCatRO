@@ -121,46 +121,46 @@ static HRESULT WINAPI HookedSetCooperativeLevel(void* self, HWND hwnd, DWORD dwF
 {
 	appWindowHandle = hwnd;
 
-	if (appWindowHandle && !originalWndProc)
-		originalWndProc = (WNDPROC)SetWindowLongPtr(appWindowHandle, GWLP_WNDPROC, (LONG_PTR)HookedWndProc);
+	if (Kitten.Conf.GetBool("BetterMouseCapture", "Enabled", false))
+	{
+		if (appWindowHandle && !originalWndProc)
+			originalWndProc = (WNDPROC)SetWindowLongPtr(appWindowHandle, GWLP_WNDPROC, (LONG_PTR)HookedWndProc);
+	}
 
 	return originalSetCooperativeLevel(self, hwnd, dwFlags);
 }
 
 static LRESULT CALLBACK HookedWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	if (Kitten.Conf.GetBool("BetterMouseCapture", "Enabled", false))
+	switch (msg)
 	{
-		switch (msg)
+		case WM_ACTIVATE:
 		{
-			case WM_ACTIVATE:
+			if (LOWORD(wParam) == WA_INACTIVE)
 			{
-				if (LOWORD(wParam) == WA_INACTIVE)
-				{
-					ClipCursor(NULL);
-					ShowCursor(TRUE);
-				}
-				else
-				{
-					RECT rect;
-					GetClientRect(hWnd, &rect);
-
-					POINT tl = { rect.left, rect.top };
-					POINT br = { rect.right, rect.bottom };
-
-					ClientToScreen(hWnd, &tl);
-					ClientToScreen(hWnd, &br);
-
-					rect.left = tl.x;
-					rect.top = tl.y;
-					rect.right = br.x;
-					rect.bottom = br.y;
-
-					ClipCursor(&rect);
-					ShowCursor(FALSE);
-				}
-				break;
+				ClipCursor(NULL);
+				ShowCursor(TRUE);
 			}
+			else
+			{
+				RECT rect;
+				GetClientRect(hWnd, &rect);
+
+				POINT tl = { rect.left, rect.top };
+				POINT br = { rect.right, rect.bottom };
+
+				ClientToScreen(hWnd, &tl);
+				ClientToScreen(hWnd, &br);
+
+				rect.left = tl.x;
+				rect.top = tl.y;
+				rect.right = br.x;
+				rect.bottom = br.y;
+
+				ClipCursor(&rect);
+				ShowCursor(FALSE);
+			}
+			break;
 		}
 	}
 
