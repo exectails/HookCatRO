@@ -79,7 +79,14 @@ namespace HookCat
 	void HookCatMain::Patch(const char* moduleName, uintptr_t address, const char* hexWrite)
 	{
 		auto writeBytes = HexTool::GetBytes(hexWrite);
+		auto mask = HexTool::GetMask(hexWrite);
 		auto size = writeBytes.size();
+
+		for (size_t i = 0; i < writeBytes.size(); ++i)
+		{
+			if (mask[i] == '?')
+				writeBytes[i] = *(char*)(address + i);
+		}
 
 		Patcher::WriteToMemory(address, writeBytes.data(), size);
 	}
