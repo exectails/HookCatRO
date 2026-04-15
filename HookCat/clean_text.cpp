@@ -3,6 +3,7 @@
 // 
 // Fixed pink text by disabling aliasing for the fonts the client creates.
 
+#include "Windows.h"
 #include "clean_text.h"
 #include "hookcat.h"
 
@@ -10,9 +11,20 @@ namespace HookCat
 {
 	namespace Mods
 	{
+		HookInfo createFontHook;
+
 		CleanText::CleanText()
 		{
 			enabled = Kitten.Conf.GetBool("CleanText", "Enabled", false);
+		}
+
+		static HFONT WINAPI CreateFontA(int nHeight, int nWidth, int nEscapement, int nOrientation, int fnWeight, DWORD fdwItalic, DWORD fdwUnderline, DWORD fdwStrikeOut, DWORD fdwCharSet, DWORD fdwOutputPrecision, DWORD fdwClipPrecision, DWORD fdwQuality, DWORD fdwPitchAndFamily, LPCSTR lpszFace)
+		{
+			// We want quality to be 3 (NONANTIALIASED_QUALITY) on modern
+			// systems, so the text doesn't get anti-aliased.
+			fdwQuality = NONANTIALIASED_QUALITY;
+
+			return ((decltype(CreateFontA)*)createFontHook.originalFunc)(nHeight, nWidth, nEscapement, nOrientation, fnWeight, fdwItalic, fdwUnderline, fdwStrikeOut, fdwCharSet, fdwOutputPrecision, fdwClipPrecision, fdwQuality, fdwPitchAndFamily, lpszFace);
 		}
 
 		void CleanText::OnLoad()
@@ -22,27 +34,15 @@ namespace HookCat
 
 			Kitten.Log.Info("Loading CleanText...");
 
-			auto addresses = Kitten.FindAll("RagExe.exe", "50  6A 10  6A 00  6A 00  6A 00  6A 01  6A 00  6A 00  6A 00  68 90010000  6A 00  6A 00  6A 00  51  FF15 40204D00");
+			createFontHook = Kitten.Hook("Gdi32.dll", "CreateFontA", CreateFontA);
 
-			if (addresses->size() == 0)
-			{
-				Kitten.Log.Info("  patch failed, no addresses found.");
-				return;
-			}
-
-			Kitten.Log.Info("  found %d instances of CreateFont.", addresses->size());
-
-			for (auto const& address : *addresses)
-			{
-				Kitten.Patch("RagExe.exe", address, "50  6A 10  6A 03  6A 00  6A 00  6A 01  6A 00  6A 00  6A 00  68 90010000  6A 00  6A 00  6A 00  51  FF15 40204D00");
-				Kitten.Log.Info("  patch applied at 0x%08X.", address);
-			}
+			if (createFontHook.success)
+				Kitten.Log.Info("  hook applied to CreateFontA.");
+			else
+				Kitten.Log.Info("  hook failed to apply to CreateFontA.");
 
 			// https://docs.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-createfonta
 			// https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-wmf/9518fece-d2f2-4799-9df6-ba3db1d73371
-
-			// We want iQuality to be 3 (NONANTIALIASED_QUALITY) on modern
-			// systems, so the text doesn't get anti-aliased.
 
 			//0040BA94 | 50                         | push eax                                             |
 			//0040BA95 | 6A 10                      | push 10                                              |

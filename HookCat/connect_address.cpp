@@ -30,12 +30,45 @@ namespace HookCat
 
 			Kitten.Log.Info("Loading ConnectAddress...");
 
-			auto address1 = Kitten.Find("RagExe.exe", "BF F8BA4E00"); // 211.239.123.168
-			auto address2 = Kitten.Find("RagExe.exe", "C705 70605200 581B0000"); // 7000
+			std::optional<uintptr_t> ipAddress, portAddress;
 
-			if (!address1 || !address2)
+			// Alpha
+			auto blockAddresses = Kitten.FindAll("RagExe.exe", "C705 ???????? 581B0000  E8 ????????  BF ????????  83C9 FF");
+
+			if (blockAddresses->size() > 1)
 			{
-				Kitten.Log.Info("  patch failed address not found.");
+				Kitten.Log.Info("  patch failed, expected 1 address, found %d.", blockAddresses->size());
+				return;
+			}
+
+			if (blockAddresses && blockAddresses->size() == 1)
+			{
+				auto blockAddress = blockAddresses->at(0);
+				ipAddress = blockAddress + 15;
+				portAddress = blockAddress + 0;
+			}
+			else
+			{
+				// Beta1
+				auto blockAddresses = Kitten.FindAll("RagExe.exe", "BF ????????  83C9 FF  33C0  C705 ???????? F41A0000");
+
+				if (blockAddresses->size() > 1)
+				{
+					Kitten.Log.Info("  patch failed, expected 1 address, found %d.", blockAddresses->size());
+					return;
+				}
+
+				if (blockAddresses && blockAddresses->size() == 1)
+				{
+					auto blockAddress = blockAddresses->at(0);
+					ipAddress = blockAddress;
+					portAddress = blockAddress + 10;
+				}
+			}
+
+			if (!ipAddress || !portAddress)
+			{
+				Kitten.Log.Info("  patch failed, address not found.");
 				return;
 			}
 
@@ -81,30 +114,37 @@ namespace HookCat
 
 			const char* ipStrPtr = ip2;
 
-			std::string patchStr1;
-			patchStr1 += "BF";
-			patchStr1 += HexTool::GetString((int)ipStrPtr);
+			std::string ipPatchStr;
+			ipPatchStr += "BF";
+			ipPatchStr += HexTool::GetString((int)ipStrPtr);
 
-			Kitten.Patch("RagExe.exe", address1.value(), patchStr1.c_str());
+			Kitten.Patch("RagExe.exe", ipAddress.value(), ipPatchStr.c_str());
 
 			// ==== Port ====
 
-			std::string patchStr2;
-			patchStr2 += "C705 70605200";
-			patchStr2 += HexTool::GetString(port);
+			std::string portPatchStr;
+			portPatchStr += "C705 ????????";
+			portPatchStr += HexTool::GetString(port);
 
-			Kitten.Patch("RagExe.exe", address2.value(), patchStr2.c_str());
+			Kitten.Patch("RagExe.exe", portAddress.value(), portPatchStr.c_str());
 
 			// ==============
 
-			Kitten.Log.Info("  patches applied at 0x%08X and 0x%08X.", address1.value(), address2.value());
+			Kitten.Log.Info("  patches applied at 0x%08X and 0x%08X.", ipAddress.value(), portAddress.value());
 			Kitten.Log.Info("  new address: %s:%d", ip2, port);
 
+			// Alpha 2001-08-30
 			//0048BD56 | B9 40645200                | mov ecx,ragexe.526440                                |
 			//0048BD5B | C705 70605200 581B0000     | mov dword ptr ds:[526070],1B58                       | Port
 			//0048BD65 | E8 762C0100                | call <ragexe.sub_49E9E0>                             |
 			//0048BD6A | BF F8BA4E00                | mov edi,ragexe.4EBAF8                                | IP
 			//0048BD6F | 83C9 FF                    | or ecx,FFFFFFFF                                      |
+
+			// Beta1 2002-02-20
+			//004BB429 | BF DCA75400                | mov edi,ragexe.54A7DC                                | IP
+			//004BB42E | 83C9 FF                    | or ecx,FFFFFFFF                                      |
+			//004BB431 | 33C0                       | xor eax,eax                                          |
+			//004BB433 | C705 48A35900 F41A0000     | mov dword ptr ds:[59A348],1AF4                       | Port
 		}
 	}
 }
