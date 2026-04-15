@@ -10,11 +10,13 @@
 HWND appWindowHandle = NULL;
 
 typedef HRESULT(WINAPI* DirectInput8CreateFunc)(HINSTANCE hinst, DWORD dwVersion, const IID& riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter);
+typedef HRESULT(WINAPI* DirectInputCreateAFunc)(HINSTANCE hinst, DWORD dwVersion, LPVOID* ppDI, LPUNKNOWN punkOuter);
 
 typedef HRESULT(WINAPI* CreateDeviceFunc)(void* self, REFGUID rguid, LPVOID* lplpDirectInputDevice, LPUNKNOWN pUnkOuter);
 typedef HRESULT(WINAPI* SetCooperativeLevelFunc)(void* self, HWND hwnd, DWORD dwFlags);
 
 DirectInput8CreateFunc originalDirectInput8Create = nullptr;
+DirectInputCreateAFunc originalDirectInputCreateA = nullptr;
 
 CreateDeviceFunc originalCreateDevice = nullptr;
 SetCooperativeLevelFunc originalSetCooperativeLevel = nullptr;
@@ -51,6 +53,41 @@ HRESULT WINAPI DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, const IID& r
 		{
 			void** vtbl = *(void***)(*ppvOut);
 			void* pCreateDevice = vtbl[3]; // IDirectInput8::CreateDevice index
+
+			if (MH_CreateHook(pCreateDevice, &HookedCreateDevice, (LPVOID*)&originalCreateDevice) == MH_OK)
+				MH_EnableHook(pCreateDevice);
+		}
+	}
+
+	return hr;
+}
+
+HRESULT WINAPI DirectInputCreateA(HINSTANCE hinst, DWORD dwVersion, LPVOID* ppDI, LPUNKNOWN punkOuter)
+{
+	if (!originalDirectInputCreateA)
+	{
+		// Get reference to the original DirectInputCreateA function in
+		// dinput.dll in the system directory
+		CHAR syspath[MAX_PATH];
+		GetSystemDirectory(syspath, MAX_PATH);
+		strcat_s(syspath, "\\dinput.dll");
+		HMODULE hMod = LoadLibrary(syspath);
+
+		if (!hMod)
+			return E_FAIL;
+
+		originalDirectInputCreateA = (DirectInputCreateAFunc)GetProcAddress(hMod, "DirectInputCreateA");
+	}
+
+	// Call original DirectInputCreateA and hook CreateDevice
+	HRESULT hr = originalDirectInputCreateA(hinst, dwVersion, ppDI, punkOuter);
+
+	if (SUCCEEDED(hr) && ppDI && *ppDI)
+	{
+		if (!originalCreateDevice)
+		{
+			void** vtbl = *(void***)(*ppDI);
+			void* pCreateDevice = vtbl[3]; // IDirectInputA::CreateDevice index
 
 			if (MH_CreateHook(pCreateDevice, &HookedCreateDevice, (LPVOID*)&originalCreateDevice) == MH_OK)
 				MH_EnableHook(pCreateDevice);
