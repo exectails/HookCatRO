@@ -9,14 +9,86 @@
 
 HWND appWindowHandle = NULL;
 
-typedef HRESULT(WINAPI* DirectInput8CreateFunc)(HINSTANCE inst_handle, DWORD version, const IID& r_iid, LPVOID* out_wrapper, LPUNKNOWN p_unk);
+typedef HRESULT(WINAPI* DirectInput8CreateFunc)(HINSTANCE hinst, DWORD dwVersion, const IID& riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter);
+
 typedef HRESULT(WINAPI* CreateDeviceFunc)(void* self, REFGUID rguid, LPVOID* lplpDirectInputDevice, LPUNKNOWN pUnkOuter);
 typedef HRESULT(WINAPI* SetCooperativeLevelFunc)(void* self, HWND hwnd, DWORD dwFlags);
 
 DirectInput8CreateFunc originalDirectInput8Create = nullptr;
+
 CreateDeviceFunc originalCreateDevice = nullptr;
 SetCooperativeLevelFunc originalSetCooperativeLevel = nullptr;
+
 WNDPROC originalWndProc = nullptr;
+
+static HRESULT WINAPI HookedCreateDevice(void* self, REFGUID rguid, LPVOID* lplpDirectInputDevice, LPUNKNOWN pUnkOuter);
+static HRESULT WINAPI HookedSetCooperativeLevel(void* self, HWND hwnd, DWORD dwFlags);
+static LRESULT CALLBACK HookedWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+HRESULT WINAPI DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, const IID& riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter)
+{
+	if (!originalDirectInput8Create)
+	{
+		// Get reference to the original DirectInput8Create function in
+		// dinput8.dll in the system directory
+		CHAR syspath[MAX_PATH];
+		GetSystemDirectory(syspath, MAX_PATH);
+		strcat_s(syspath, "\\dinput8.dll");
+		HMODULE hMod = LoadLibrary(syspath);
+
+		if (!hMod)
+			return E_FAIL;
+
+		originalDirectInput8Create = (DirectInput8CreateFunc)GetProcAddress(hMod, "DirectInput8Create");
+	}
+
+	// Call original DirectInput8Create and hook CreateDevice
+	HRESULT hr = originalDirectInput8Create(hinst, dwVersion, riidltf, ppvOut, punkOuter);
+
+	if (SUCCEEDED(hr) && ppvOut && *ppvOut)
+	{
+		if (!originalCreateDevice)
+		{
+			void** vtbl = *(void***)(*ppvOut);
+			void* pCreateDevice = vtbl[3]; // IDirectInput8::CreateDevice index
+
+			if (MH_CreateHook(pCreateDevice, &HookedCreateDevice, (LPVOID*)&originalCreateDevice) == MH_OK)
+				MH_EnableHook(pCreateDevice);
+		}
+	}
+
+	return hr;
+}
+
+static HRESULT WINAPI HookedCreateDevice(void* self, REFGUID rguid, LPVOID* lplpDirectInputDevice, LPUNKNOWN pUnkOuter)
+{
+	HRESULT hr = originalCreateDevice(self, rguid, lplpDirectInputDevice, pUnkOuter);
+
+	if (SUCCEEDED(hr) && lplpDirectInputDevice && *lplpDirectInputDevice)
+	{
+		if (!originalSetCooperativeLevel)
+		{
+			// IDirectInputDevice8::SetCooperativeLevel
+			void** vtbl = *(void***)(*lplpDirectInputDevice);
+			void* pSetCooperativeLevel = vtbl[13];
+
+			if (MH_CreateHook(pSetCooperativeLevel, &HookedSetCooperativeLevel, (LPVOID*)&originalSetCooperativeLevel) == MH_OK)
+				MH_EnableHook(pSetCooperativeLevel);
+		}
+	}
+
+	return hr;
+}
+
+static HRESULT WINAPI HookedSetCooperativeLevel(void* self, HWND hwnd, DWORD dwFlags)
+{
+	appWindowHandle = hwnd;
+
+	if (appWindowHandle && !originalWndProc)
+		originalWndProc = (WNDPROC)SetWindowLongPtr(appWindowHandle, GWLP_WNDPROC, (LONG_PTR)HookedWndProc);
+
+	return originalSetCooperativeLevel(self, hwnd, dwFlags);
+}
 
 static LRESULT CALLBACK HookedWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -56,69 +128,4 @@ static LRESULT CALLBACK HookedWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 	}
 
 	return CallWindowProc(originalWndProc, hWnd, msg, wParam, lParam);
-}
-
-static HRESULT WINAPI HookedSetCooperativeLevel(void* self, HWND hwnd, DWORD dwFlags)
-{
-	appWindowHandle = hwnd;
-
-	if (appWindowHandle && !originalWndProc)
-		originalWndProc = (WNDPROC)SetWindowLongPtr(appWindowHandle, GWLP_WNDPROC, (LONG_PTR)HookedWndProc);
-
-	return originalSetCooperativeLevel(self, hwnd, dwFlags);
-}
-
-static HRESULT WINAPI HookedCreateDevice(void* self, REFGUID rguid, LPVOID* lplpDirectInputDevice, LPUNKNOWN pUnkOuter)
-{
-	HRESULT hr = originalCreateDevice(self, rguid, lplpDirectInputDevice, pUnkOuter);
-
-	if (SUCCEEDED(hr) && lplpDirectInputDevice && *lplpDirectInputDevice)
-	{
-		if (!originalSetCooperativeLevel)
-		{
-			// IDirectInputDevice8::SetCooperativeLevel
-			void** vtbl = *(void***)(*lplpDirectInputDevice);
-			void* pSetCooperativeLevel = vtbl[13];
-
-			if (MH_CreateHook(pSetCooperativeLevel, &HookedSetCooperativeLevel, (LPVOID*)&originalSetCooperativeLevel) == MH_OK)
-				MH_EnableHook(pSetCooperativeLevel);
-		}
-	}
-
-	return hr;
-}
-
-HRESULT WINAPI DirectInput8Create(HINSTANCE inst_handle, DWORD version, const IID& r_iid, LPVOID* out_wrapper, LPUNKNOWN p_unk)
-{
-	if (!originalDirectInput8Create)
-	{
-		// Get reference to the original DirectInput8Create function in
-		// dinput8.dll in the system directory
-		CHAR syspath[MAX_PATH];
-		GetSystemDirectory(syspath, MAX_PATH);
-		strcat_s(syspath, "\\dinput8.dll");
-		HMODULE hMod = LoadLibrary(syspath);
-
-		if (!hMod)
-			return E_FAIL;
-
-		originalDirectInput8Create = (DirectInput8CreateFunc)GetProcAddress(hMod, "DirectInput8Create");
-	}
-
-	// Call original DirectInput8Create and hook CreateDevice
-	HRESULT hr = originalDirectInput8Create(inst_handle, version, r_iid, out_wrapper, p_unk);
-
-	if (SUCCEEDED(hr) && out_wrapper && *out_wrapper)
-	{
-		if (!originalCreateDevice)
-		{
-			void** vtbl = *(void***)(*out_wrapper);
-			void* pCreateDevice = vtbl[3]; // IDirectInput8::CreateDevice index
-
-			if (MH_CreateHook(pCreateDevice, &HookedCreateDevice, (LPVOID*)&originalCreateDevice) == MH_OK)
-				MH_EnableHook(pCreateDevice);
-		}
-	}
-
-	return hr;
 }
