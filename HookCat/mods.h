@@ -2,6 +2,7 @@
 
 #include "hookcat.h"
 
+#include "better_mouse_capture.h"
 #include "chatspam.h"
 #include "clean_text.h"
 #include "connect_address.h"
@@ -17,6 +18,7 @@ void AddMods()
 {
 	// List of mods to load.
 
+	Kitten.AddMod(make_shared<BetterMouseCapture>());
 	Kitten.AddMod(make_shared<ChatSpam>());
 	Kitten.AddMod(make_shared<CleanText>());
 	Kitten.AddMod(make_shared<ConnectAddress>());

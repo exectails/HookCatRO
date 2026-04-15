@@ -11,7 +11,7 @@ namespace HookCat
 {
 	namespace Mods
 	{
-		HookInfo createFontHook;
+		static HookInfo createFontHook;
 
 		CleanText::CleanText()
 		{

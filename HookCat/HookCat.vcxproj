@@ -170,6 +170,7 @@
     <ClCompile Include="..\Libs\minhook\src\hde\hde64.c" />
     <ClCompile Include="..\Libs\minhook\src\hook.c" />
     <ClCompile Include="..\Libs\minhook\src\trampoline.c" />
+    <ClCompile Include="better_mouse_capture.cpp" />
     <ClCompile Include="clean_text.cpp" />
     <ClCompile Include="connect_address.cpp" />
     <ClCompile Include="ddraw_error.cpp" />
@@ -195,6 +196,7 @@
     <ClInclude Include="..\Libs\minhook\src\hde\table32.h" />
     <ClInclude Include="..\Libs\minhook\src\hde\table64.h" />
     <ClInclude Include="..\Libs\minhook\src\trampoline.h" />
+    <ClInclude Include="better_mouse_capture.h" />
     <ClInclude Include="chatspam.h" />
     <ClInclude Include="clean_text.h" />
     <ClInclude Include="connect_address.h" />

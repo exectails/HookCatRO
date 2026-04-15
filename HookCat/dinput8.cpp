@@ -7,8 +7,6 @@
 // Our DLL must then provide all functions that would normally be called
 // in the original though, like DirectInput8Create.
 
-HWND appWindowHandle = NULL;
-
 typedef HRESULT(WINAPI* DirectInput8CreateFunc)(HINSTANCE hinst, DWORD dwVersion, const IID& riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter);
 typedef HRESULT(WINAPI* DirectInputCreateAFunc)(HINSTANCE hinst, DWORD dwVersion, LPVOID* ppDI, LPUNKNOWN punkOuter);
 
@@ -26,6 +24,9 @@ WNDPROC originalWndProc = nullptr;
 static HRESULT WINAPI HookedCreateDevice(void* self, REFGUID rguid, LPVOID* lplpDirectInputDevice, LPUNKNOWN pUnkOuter);
 static HRESULT WINAPI HookedSetCooperativeLevel(void* self, HWND hwnd, DWORD dwFlags);
 static LRESULT CALLBACK HookedWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+HWND appWindowHandle = nullptr;
+std::vector<WNDPROC> wndProcHooks;
 
 HRESULT WINAPI DirectInput8Create(HINSTANCE hinst, DWORD dwVersion, const IID& riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter)
 {
@@ -132,36 +133,12 @@ static HRESULT WINAPI HookedSetCooperativeLevel(void* self, HWND hwnd, DWORD dwF
 
 static LRESULT CALLBACK HookedWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	switch (msg)
+	for (WNDPROC hook : wndProcHooks)
 	{
-		case WM_ACTIVATE:
-		{
-			if (LOWORD(wParam) == WA_INACTIVE)
-			{
-				ClipCursor(NULL);
-				ShowCursor(TRUE);
-			}
-			else
-			{
-				RECT rect;
-				GetClientRect(hWnd, &rect);
+		LRESULT result = hook(hWnd, msg, wParam, lParam);
 
-				POINT tl = { rect.left, rect.top };
-				POINT br = { rect.right, rect.bottom };
-
-				ClientToScreen(hWnd, &tl);
-				ClientToScreen(hWnd, &br);
-
-				rect.left = tl.x;
-				rect.top = tl.y;
-				rect.right = br.x;
-				rect.bottom = br.y;
-
-				ClipCursor(&rect);
-				ShowCursor(FALSE);
-			}
-			break;
-		}
+		if (result != 0)
+			return result;
 	}
 
 	return CallWindowProc(originalWndProc, hWnd, msg, wParam, lParam);
