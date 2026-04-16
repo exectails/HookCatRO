@@ -7,6 +7,7 @@
 #include "clean_text.h"
 #include "connect_address.h"
 #include "ddraw_error.h"
+#include "fix_translation.h"
 #include "multiclient.h"
 #include "no_disclaimer.h"
 #include "window_size.h"
@@ -23,6 +24,7 @@ void AddMods()
 	Kitten.AddMod(make_shared<CleanText>());
 	Kitten.AddMod(make_shared<ConnectAddress>());
 	Kitten.AddMod(make_shared<DDrawError>());
+	Kitten.AddMod(make_shared<FixTranslation>());
 	Kitten.AddMod(make_shared<MultiClient>());
 	Kitten.AddMod(make_shared<NoDisclaimer>());
 	Kitten.AddMod(make_shared<WindowSize>());

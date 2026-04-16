@@ -65,6 +65,9 @@
     <ClCompile Include="better_mouse_capture.cpp">
       <Filter>hookcat\mods</Filter>
     </ClCompile>
+    <ClCompile Include="fix_translation.cpp">
+      <Filter>hookcat\mods</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="date.h">
@@ -143,6 +146,9 @@
       <Filter>hookcat\mods</Filter>
     </ClInclude>
     <ClInclude Include="better_mouse_capture.h">
+      <Filter>hookcat\mods</Filter>
+    </ClInclude>
+    <ClInclude Include="fix_translation.h">
       <Filter>hookcat\mods</Filter>
     </ClInclude>
   </ItemGroup>

@@ -176,6 +176,7 @@
     <ClCompile Include="ddraw_error.cpp" />
     <ClCompile Include="dinput8.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="fix_translation.cpp" />
     <ClCompile Include="hookcat.cpp" />
     <ClCompile Include="hookinfo.cpp" />
     <ClCompile Include="hextool.cpp" />
@@ -203,6 +204,7 @@
     <ClInclude Include="date.h" />
     <ClInclude Include="ddraw_error.h" />
     <ClInclude Include="dinput8.h" />
+    <ClInclude Include="fix_translation.h" />
     <ClInclude Include="hextool.h" />
     <ClInclude Include="hookcat.h" />
     <ClInclude Include="hookinfo.h" />
