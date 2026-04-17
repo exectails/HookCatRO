@@ -35,7 +35,7 @@ them as you see fit.
 How to use
 -----------------------------------------------------------------------------
 
-- Download the DLLs and INI and place them in your RO alpha client folder.
+- Download the DLLs and INI and place them in your RO client folder.
 - That's it.
 
 Disclaimer
