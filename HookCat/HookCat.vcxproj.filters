@@ -68,6 +68,9 @@
     <ClCompile Include="fix_translation.cpp">
       <Filter>hookcat\mods</Filter>
     </ClCompile>
+    <ClCompile Include="detourinfo.cpp">
+      <Filter>hookcat</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="date.h">
@@ -150,6 +153,9 @@
     </ClInclude>
     <ClInclude Include="fix_translation.h">
       <Filter>hookcat\mods</Filter>
+    </ClInclude>
+    <ClInclude Include="detourinfo.h">
+      <Filter>hookcat</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

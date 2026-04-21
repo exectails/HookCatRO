@@ -136,6 +136,25 @@ namespace HookCat
 	{
 		return (MH_DisableHook(hookInfo.detourFunc) != MH_OK);
 	}
+
+	DetourInfo HookCatMain::Detour(uintptr_t sourceAddr, uintptr_t detourAddr, int overwriteCount)
+	{
+		auto result = DetourInfo(sourceAddr, detourAddr);
+
+		auto addJumpAddr = sourceAddr;
+		auto addJumpRet = sourceAddr + overwriteCount;
+
+		std::vector<char> patchData(overwriteCount, '\x90');
+		patchData[0] = '\xE9';
+		*(int*)(&patchData[1]) = (int)detourAddr - (addJumpAddr + 5);
+
+		Patcher::WriteToMemory(addJumpAddr, patchData.data(), patchData.size());
+
+		result.success = true;
+		result.returnAddr = addJumpRet;
+
+		return result;
+	}
 }
 
 HookCat::HookCatMain Kitten;

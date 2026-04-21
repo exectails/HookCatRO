@@ -3,6 +3,7 @@
 #include <optional>
 #include <vector>
 #include "hookinfo.h"
+#include "detourinfo.h"
 #include "ini.h"
 #include "logger.h"
 #include "mod.h"
@@ -77,6 +78,10 @@ namespace HookCat
 
 		// Disables the given hook.
 		bool Unhook(HookInfo hookInfo);
+
+		// Writes a jump instruction to the source address, detouring it
+		// to the detour address.
+		DetourInfo Detour(uintptr_t sourceAddr, uintptr_t detourAddr, int overwriteCount);
 	};
 }
 
