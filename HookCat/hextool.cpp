@@ -52,6 +52,26 @@ namespace HexTool
 		return bytes;
 	}
 
+	uint32_t CountBytes(const char* hexString)
+	{
+		uint32_t count = 0;
+
+		auto src = hexString;
+		while (*src && src[1])
+		{
+			if (*src == ' ')
+			{
+				src++;
+				continue;
+			}
+
+			count++;
+			src += 2;
+		}
+
+		return count;
+	}
+
 	std::vector<char> GetMask(const char* hexString)
 	{
 		std::vector<char> characters;

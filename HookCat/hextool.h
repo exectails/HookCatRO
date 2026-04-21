@@ -14,6 +14,13 @@ namespace HexTool
 	//     GetBytes("01 02  03 04 0506"); // { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 }
 	std::vector<char> GetBytes(const char* hexString);
 
+	// Counts the number of bytes represented by the given string of hex
+	// characters. The function supports whitespaces, but all hex
+	// characters must come in pairs.
+	// Example:
+	//     CountBytes("01 02  03 04 0506"); // 6
+	uint32_t CountBytes(const char* hexString);
+
 	// Returns a mask pattern for the given string of hex characters,
 	// where valid bytes are marked as "x", while placeholder bytes,
 	// specified as "??", are marked as "?".
