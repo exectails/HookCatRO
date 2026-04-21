@@ -17,8 +17,6 @@ namespace HookCat
 
 		static int CalcDirection(float angle)
 		{
-			Kitten.Log.Debug("Calculating direction for angle %f", angle);
-			//return (int)((angle + 180.0f) / 45.0f) & 7;
 			return (int)((angle + 180.0f + 22.5f) / 45.0f) & 7;
 		}
 
