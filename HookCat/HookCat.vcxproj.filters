@@ -68,6 +68,9 @@
     <ClCompile Include="fix_translation.cpp">
       <Filter>hookcat\mods</Filter>
     </ClCompile>
+    <ClCompile Include="fix_direction.cpp">
+      <Filter>hookcat\mods</Filter>
+    </ClCompile>
     <ClCompile Include="detourinfo.cpp">
       <Filter>hookcat</Filter>
     </ClCompile>
@@ -152,6 +155,9 @@
       <Filter>hookcat\mods</Filter>
     </ClInclude>
     <ClInclude Include="fix_translation.h">
+      <Filter>hookcat\mods</Filter>
+    </ClInclude>
+    <ClInclude Include="fix_direction.h">
       <Filter>hookcat\mods</Filter>
     </ClInclude>
     <ClInclude Include="detourinfo.h">

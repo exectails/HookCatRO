@@ -177,6 +177,7 @@
     <ClCompile Include="detourinfo.cpp" />
     <ClCompile Include="dinput8.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="fix_direction.cpp" />
     <ClCompile Include="fix_translation.cpp" />
     <ClCompile Include="hookcat.cpp" />
     <ClCompile Include="hookinfo.cpp" />
@@ -206,6 +207,7 @@
     <ClInclude Include="ddraw_error.h" />
     <ClInclude Include="detourinfo.h" />
     <ClInclude Include="dinput8.h" />
+    <ClInclude Include="fix_direction.h" />
     <ClInclude Include="fix_translation.h" />
     <ClInclude Include="hextool.h" />
     <ClInclude Include="hookcat.h" />
