@@ -11,6 +11,7 @@
 #include "fix_translation.h"
 #include "multiclient.h"
 #include "no_disclaimer.h"
+#include "read_data.h"
 #include "window_size.h"
 
 using namespace std;
@@ -29,5 +30,6 @@ void AddMods()
 	Kitten.AddMod(make_shared<FixTranslation>());
 	Kitten.AddMod(make_shared<MultiClient>());
 	Kitten.AddMod(make_shared<NoDisclaimer>());
+	Kitten.AddMod(make_shared<ReadData>());
 	Kitten.AddMod(make_shared<WindowSize>());
 }

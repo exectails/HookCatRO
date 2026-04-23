@@ -188,6 +188,7 @@
     <ClCompile Include="no_disclaimer.cpp" />
     <ClCompile Include="patcher.cpp" />
     <ClCompile Include="chatspam.cpp" />
+    <ClCompile Include="read_data.cpp" />
     <ClCompile Include="util.cpp" />
     <ClCompile Include="window_size.cpp" />
   </ItemGroup>
@@ -219,6 +220,7 @@
     <ClInclude Include="multiclient.h" />
     <ClInclude Include="no_disclaimer.h" />
     <ClInclude Include="patcher.h" />
+    <ClInclude Include="read_data.h" />
     <ClInclude Include="util.h" />
     <ClInclude Include="window_size.h" />
   </ItemGroup>

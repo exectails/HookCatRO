@@ -49,6 +49,12 @@ namespace HookCat
 		//         Patch("Foo.dll", address.value(), "3BF1 EB 10");
 		std::unique_ptr<std::vector<uintptr_t>> FindAll(const char* moduleName, const char* hexPattern);
 
+		// Searches for the given string in the module and returns its
+		// address if it was found.
+		// Example:
+		//     auto address = FindString("Foo.dll", "Hello, world!");
+		std::optional<uintptr_t> FindString(const char* moduleName, const char* str);
+
 		// Writes the bytes in the hex string to the first address found
 		// for the pattern.
 		// Example:
@@ -75,6 +81,9 @@ namespace HookCat
 		//     if (!hook)
 		//         log.error("Hook failed");
 		HookInfo Hook(const char* moduleName, const char* funcName, void* detourFunc);
+
+		// Creates and returns a hook for the function at a specific address.
+		HookInfo HookAddr(uintptr_t funcAddr, void* detourFunc);
 
 		// Disables the given hook.
 		bool Unhook(HookInfo hookInfo);

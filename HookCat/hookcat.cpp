@@ -76,6 +76,16 @@ namespace HookCat
 		return Patcher::FindAll(moduleName, pattern.data(), mask.data());
 	}
 
+	std::optional<uintptr_t> HookCatMain::FindString(const char* moduleName, const char* str)
+	{
+		auto pattern = std::vector<char>(str, str + strlen(str) + 1);
+		auto mask = std::vector<char>(pattern.size(), 'x');
+
+		mask.push_back(0);
+
+		return Patcher::FindFirst(moduleName, pattern.data(), mask.data());
+	}
+
 	void HookCatMain::Patch(const char* moduleName, uintptr_t address, const char* hexWrite)
 	{
 		auto writeBytes = HexTool::GetBytes(hexWrite);
@@ -123,6 +133,30 @@ namespace HookCat
 		}
 
 		if (MH_EnableHook(funcAddress) != MH_OK)
+		{
+			return result;
+		}
+
+		result.success = true;
+
+		return result;
+	}
+
+	HookInfo HookCatMain::HookAddr(uintptr_t funcAddr, void* detourFunc)
+	{
+		auto result = HookInfo(nullptr, nullptr, detourFunc);
+
+		if (!funcAddr)
+		{
+			return result;
+		}
+
+		if (MH_CreateHook((void*)funcAddr, detourFunc, &result.originalFunc) != MH_OK)
+		{
+			return result;
+		}
+
+		if (MH_EnableHook((void*)funcAddr) != MH_OK)
 		{
 			return result;
 		}
