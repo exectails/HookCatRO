@@ -44,7 +44,7 @@ namespace HookCat
 				return;
 			}
 
-			Kitten.Log.Info("  patch failed, address not found2.");
+			Kitten.Log.Info("  patch failed, address not found.");
 			return;
 
 
